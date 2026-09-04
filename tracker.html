@@ -325,9 +325,12 @@
             <!-- ===== PASOS DE CONFIGURACIÓN 1 a 6 ===== -->
             <div id="tracker-step-1" class="tracker-view active">
                 <div class="player-setup-card">
-                    <label class="p1-label">JUGADOR 1</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label class="p1-label">JUGADOR 1</label>
+                        <span onclick="refreshPlayers()" style="font-size:0.7rem; color:#888; cursor:pointer; font-weight:bold; letter-spacing:1px;"><i class="fas fa-sync-alt"></i> REFRESCAR LISTA</span>
+                    </div>
                     <div class="tk-select-wrap">
-                        <select id="tk-p1-id" class="tk-input tk-select p1-input">
+                        <select id="tk-p1-id" class="tk-input tk-select p1-input" onchange="handlePlayerSelect(this)">
                             <option value="">Selecciona Jugador...</option>
                         </select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
@@ -339,9 +342,12 @@
                     <button id="tk-p1-br" class="tk-btn-toggle" onclick="toggleBattleReady(1)">BATTLE READY +10 PV</button>
                 </div>
                 <div class="player-setup-card" style="margin-top: 30px;">
-                    <label class="p2-label">JUGADOR 2</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label class="p2-label">JUGADOR 2</label>
+                        <span onclick="refreshPlayers()" style="font-size:0.7rem; color:#888; cursor:pointer; font-weight:bold; letter-spacing:1px;"><i class="fas fa-sync-alt"></i> REFRESCAR LISTA</span>
+                    </div>
                     <div class="tk-select-wrap">
-                        <select id="tk-p2-id" class="tk-input tk-select p2-input">
+                        <select id="tk-p2-id" class="tk-input tk-select p2-input" onchange="handlePlayerSelect(this)">
                             <option value="">Selecciona Jugador...</option>
                         </select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
@@ -799,18 +805,24 @@
             rollOffWinner: 0, firstTurn: 0
         };
 
+        async function loadPlayers(sbClient) {
+            const { data: jData, error: jErr } = await sbClient.from('jugadores').select('id, nombre').order('nombre');
+            if (jErr) throw jErr;
+            
+            let jOptions = '<option value="">Selecciona Jugador...</option>';
+            jOptions += '<option value="NEW_PLAYER" style="color:#f5a623; font-weight:bold;">+ REGISTRAR NUEVO JUGADOR...</option>';
+            jData.forEach(j => { jOptions += `<option value="${j.id}">${j.nombre}</option>`; });
+            return jOptions;
+        }
+
         async function loadSupabaseData() {
             try {
                 const sb = supabase.createClient(window._sbUrl, window._sbAnon);
 
                 // 1. Cargar Jugadores
-                const { data: jData, error: jErr } = await sb.from('jugadores').select('id, nombre');
-                if (jErr) throw jErr;
-                
+                const jOptions = await loadPlayers(sb);
                 const p1Select = document.getElementById('tk-p1-id');
                 const p2Select = document.getElementById('tk-p2-id');
-                let jOptions = '<option value="">Selecciona Jugador...</option>';
-                jData.forEach(j => { jOptions += `<option value="${j.id}">${j.nombre}</option>`; });
                 p1Select.innerHTML = jOptions;
                 p2Select.innerHTML = jOptions;
 
@@ -899,6 +911,46 @@
             
             checkNextButtonState();
         }
+
+        window.refreshPlayers = async function() {
+            try {
+                const sb = supabase.createClient(window._sbUrl, window._sbAnon);
+                const jOptions = await loadPlayers(sb);
+
+                const p1Select = document.getElementById('tk-p1-id');
+                const p2Select = document.getElementById('tk-p2-id');
+                
+                // Guardar selecciones actuales
+                const currentP1 = p1Select.value;
+                const currentP2 = p2Select.value;
+
+                p1Select.innerHTML = jOptions;
+                p2Select.innerHTML = jOptions;
+
+                // Restaurar
+                p1Select.value = currentP1;
+                p2Select.value = currentP2;
+
+                // Efecto visual rápido
+                p1Select.style.borderColor = "#27ae60";
+                p2Select.style.borderColor = "#27ae60";
+                setTimeout(() => {
+                    p1Select.style.borderColor = "#3a3f4b";
+                    p2Select.style.borderColor = "#3a3f4b";
+                }, 500);
+
+            } catch(e) {
+                console.error("Error al refrescar la lista de jugadores", e);
+            }
+        };
+
+        window.handlePlayerSelect = function(el) {
+            if (el.value === 'NEW_PLAYER') {
+                el.value = ''; // Resetear el select
+                window.open('nuevo_jugador.html', '_blank');
+            }
+            checkNextButtonState();
+        };
 
         window.toggleBattleReady = function(playerNum) {
             const btn = document.getElementById(`tk-p${playerNum}-br`);
@@ -1725,7 +1777,7 @@
 
                 alert('¡Partida registrada con éxito!');
                 localStorage.removeItem('herejaibas_tkPartida'); 
-                window.location.href = 'ranking.html'; // Puedes redirigir a ranking.html
+                window.location.href = 'ranking.html';
 
             } catch (err) {
                 console.error("Error al subir a Supabase:", err);
