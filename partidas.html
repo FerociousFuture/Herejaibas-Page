@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herejaibas | Historial de Partidas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo-name">Herejaibas</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="partidas.html">Historial</a></li>
+                <li><a href="tracker.html">Tracker</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Historial de Partidas</h1>
+            <p>Registro oficial de encuentros de la comunidad.</p>
+        </div>
+        
+        <table class="data-table" id="tabla-partidas">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Misión / Escenario</th>
+                    <th>Jugadores</th>
+                    <th>Resultado</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpo-partidas">
+                <tr><td colspan="4">Cargando datos...</td></tr>
+            </tbody>
+        </table>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Herejaibas Veracruz. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
