@@ -63,8 +63,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .player-setup-card { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
-        .p1-label { color: #4a90e2; font-size: 0.9rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-        .p2-label { color: #e24a4a; font-size: 0.9rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .p1-label { color: #4a90e2; font-size: 1rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .p2-label { color: #e24a4a; font-size: 1rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
 
         .tk-input { width: 100%; background: #23262f; border: 1px solid #3a3f4b; border-radius: 8px; padding: 15px; color: #fff; font-size: 1.1rem; font-weight: 600; outline: none; font-family: 'Exo 2', sans-serif; transition: all 0.2s; }
         .tk-input::placeholder { color: #666; font-weight: 600; }
@@ -75,6 +75,13 @@
         .tk-select { appearance: none; font-size: 1rem; font-weight: 500; color: #ccc; cursor: pointer; padding-right: 40px; }
         .tk-select:disabled { opacity: 0.5; cursor: not-allowed; }
         .tk-select-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none; }
+
+        /* Helpers nuevo jugador (CON ESPACIOS CORREGIDOS) */
+        .player-helper-text { text-align: right; font-size: 0.85rem; color: #888; margin-top: 4px; margin-bottom: 20px; display: block;}
+        .new-player-link { color: #f5a623; font-weight: 800; text-decoration: none; letter-spacing: 1px; transition: 0.2s; padding: 5px; border-radius: 4px; }
+        .new-player-link:hover { color: #000; background: #f5a623; }
+        .refresh-btn { font-size: 0.8rem; color:#aaa; cursor:pointer; font-weight:bold; letter-spacing:1px; transition: color 0.2s; padding: 8px; border: 1px solid #3a3f4b; border-radius: 6px; background: #1a1c23; }
+        .refresh-btn:hover { color: #fff; border-color: #888; }
 
         /* Lista de Destacamentos y Puntos */
         .dp-tracker-badge { background: #1a1c23; border: 1px solid #f5a623; color: #f5a623; padding: 5px 12px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; }
@@ -325,38 +332,53 @@
             <!-- ===== PASOS DE CONFIGURACIÓN 1 a 6 ===== -->
             <div id="tracker-step-1" class="tracker-view active">
                 <div class="player-setup-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <label class="p1-label">JUGADOR 1</label>
-                        <span onclick="refreshPlayers()" style="font-size:0.7rem; color:#888; cursor:pointer; font-weight:bold; letter-spacing:1px;"><i class="fas fa-sync-alt"></i> REFRESCAR LISTA</span>
+                        <button class="refresh-btn" onclick="refreshPlayers()"><i class="fas fa-sync-alt"></i> REFRESCAR</button>
                     </div>
+                    
                     <div class="tk-select-wrap">
-                        <select id="tk-p1-id" class="tk-input tk-select p1-input" onchange="handlePlayerSelect(this)">
+                        <select id="tk-p1-id" class="tk-input tk-select p1-input" onchange="checkNextButtonState()">
                             <option value="">Selecciona Jugador...</option>
                         </select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
-                    <div class="tk-select-wrap">
+                    
+                    <div class="player-helper-text">
+                        ¿No tienes usuario? <a href="nuevo_jugador.html" target="_blank" class="new-player-link"><i class="fas fa-user-plus"></i> REGÍSTRATE AQUÍ</a>
+                    </div>
+
+                    <div class="tk-select-wrap" style="margin-top: 5px;">
                         <select id="tk-p1-faction" class="tk-input tk-select"><option value="">Facción (obligatorio)</option></select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
-                    <button id="tk-p1-br" class="tk-btn-toggle" onclick="toggleBattleReady(1)">BATTLE READY +10 PV</button>
+
+                    <button id="tk-p1-br" class="tk-btn-toggle" style="margin-top: 5px;" onclick="toggleBattleReady(1)">BATTLE READY +10 PV</button>
                 </div>
+
                 <div class="player-setup-card" style="margin-top: 30px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <label class="p2-label">JUGADOR 2</label>
-                        <span onclick="refreshPlayers()" style="font-size:0.7rem; color:#888; cursor:pointer; font-weight:bold; letter-spacing:1px;"><i class="fas fa-sync-alt"></i> REFRESCAR LISTA</span>
+                        <button class="refresh-btn" onclick="refreshPlayers()"><i class="fas fa-sync-alt"></i> REFRESCAR</button>
                     </div>
+                    
                     <div class="tk-select-wrap">
-                        <select id="tk-p2-id" class="tk-input tk-select p2-input" onchange="handlePlayerSelect(this)">
+                        <select id="tk-p2-id" class="tk-input tk-select p2-input" onchange="checkNextButtonState()">
                             <option value="">Selecciona Jugador...</option>
                         </select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
-                    <div class="tk-select-wrap">
+                    
+                    <div class="player-helper-text">
+                        ¿No tienes usuario? <a href="nuevo_jugador.html" target="_blank" class="new-player-link"><i class="fas fa-user-plus"></i> REGÍSTRATE AQUÍ</a>
+                    </div>
+
+                    <div class="tk-select-wrap" style="margin-top: 5px;">
                         <select id="tk-p2-faction" class="tk-input tk-select"><option value="">Facción (obligatorio)</option></select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
-                    <button id="tk-p2-br" class="tk-btn-toggle" onclick="toggleBattleReady(2)">BATTLE READY +10 PV</button>
+
+                    <button id="tk-p2-br" class="tk-btn-toggle" style="margin-top: 5px;" onclick="toggleBattleReady(2)">BATTLE READY +10 PV</button>
                 </div>
             </div>
 
@@ -716,7 +738,7 @@
             "Behind Enemy Lines": {
                 name: "BEHIND ENEMY LINES", types: ["TACTICAL"], icon: "fa-shield-alt", bg: "bg-sec",
                 intro: "<strong>CUANDO SE ROBA:</strong> Durante la primera ronda de batalla, <u>puedes</u> barajar esta carta de vuelta en tu mazo de Misiones Secundarias y luego robar una nueva carta de Misión Secundaria.",
-                rules: [ { typeLabel: "TACTICAL", title: "Cualquier Ronda de Batalla", when: "Al final de tu turno", desc: "Por cada unidad aliada (excluyendo <strong>AERONAVES</strong> y unidades <strong>acobardadas</strong>) completamente dentro de la zona de despliegue de tu oponente.", vp: ["3"], maxVp: "5" } ]
+                rules: [ { typeLabel: "TACTICAL", title: "Cualquier Ronda de Batalla", when: "Al final de tu turno", desc: "Por cada unidad aliada (excluyendo <strong>AERONAVES</strong> y unidades <strong>acobardadas</strong>) completely dentro de la zona de despliegue de tu oponente.", vp: ["3"], maxVp: "5" } ]
             },
             "Bring it Down": {
                 name: "BRING IT DOWN", types: ["FIXED", "TACTICAL"], icon: "fa-shield-alt", bg: "bg-sec",
@@ -810,7 +832,6 @@
             if (jErr) throw jErr;
             
             let jOptions = '<option value="">Selecciona Jugador...</option>';
-            jOptions += '<option value="NEW_PLAYER" style="color:#f5a623; font-weight:bold;">+ REGISTRAR NUEVO JUGADOR...</option>';
             jData.forEach(j => { jOptions += `<option value="${j.id}">${j.nombre}</option>`; });
             return jOptions;
         }
@@ -942,14 +963,6 @@
             } catch(e) {
                 console.error("Error al refrescar la lista de jugadores", e);
             }
-        };
-
-        window.handlePlayerSelect = function(el) {
-            if (el.value === 'NEW_PLAYER') {
-                el.value = ''; // Resetear el select
-                window.open('nuevo_jugador.html', '_blank');
-            }
-            checkNextButtonState();
         };
 
         window.toggleBattleReady = function(playerNum) {
