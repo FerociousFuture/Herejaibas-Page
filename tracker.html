@@ -906,13 +906,15 @@
         }
 
         async function initTracker() {
-            await loadSupabaseData(); // Esperar a Supabase
+            await loadSupabaseData(); 
+
+            // FIX: Si Supabase falló y la matriz de misiones está vacía, detenemos la ejecución para evitar que la app colapse.
+            if (Object.keys(MISSION_MATRIX).length === 0) return;
 
             const savedState = localStorage.getItem('herejaibas_tkPartida');
             if (savedState) {
                 tkState = JSON.parse(savedState);
                 
-                // 1. Restaurar selecciones iniciales
                 if(tkState.p1.id) document.getElementById('tk-p1-id').value = tkState.p1.id;
                 if(tkState.p2.id) document.getElementById('tk-p2-id').value = tkState.p2.id;
                 if(tkState.p1.faction) document.getElementById('tk-p1-faction').value = tkState.p1.faction;
@@ -921,7 +923,6 @@
                 if (tkState.p1.battleReady) document.getElementById('tk-p1-br').classList.add('active');
                 if (tkState.p2.battleReady) document.getElementById('tk-p2-br').classList.add('active');
 
-                // 2. RECONSTRUIR LA INTERFAZ VISUAL SEGÚN EL PASO
                 if (tkState.step >= 2) {
                     document.getElementById('label-p1-detachment').textContent = tkState.p1.name || "JUGADOR 1";
                     document.getElementById('label-p2-detachment').textContent = tkState.p2.name || "JUGADOR 2";
@@ -973,7 +974,6 @@
                     }
                 }
 
-                // 3. Mostrar el tablero final si ya estaban en partida
                 if (tkState.step === 7) {
                     document.getElementById('setup-header').style.display = 'none';
                     document.getElementById('setup-footer').style.display = 'none';
@@ -1696,12 +1696,22 @@
                 p2: { id:'', name: 'JUGADOR 2', faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
                 rollOffWinner: 0, firstTurn: 0
             };
+            
+            // Limpiar inputs iniciales
             document.getElementById('tk-p1-id').value = '';
             document.getElementById('tk-p2-id').value = '';
             document.getElementById('tk-p1-faction').value = '';
             document.getElementById('tk-p2-faction').value = '';
             document.getElementById('tk-p1-br').classList.remove('active');
             document.getElementById('tk-p2-br').classList.remove('active');
+            
+            // FIX: Limpiar el HTML residual de los pasos intermedios
+            document.getElementById('p1-detachment-list').innerHTML = '';
+            document.getElementById('p2-detachment-list').innerHTML = '';
+            document.querySelectorAll('.fd-btn').forEach(btn => btn.classList.remove('selected', 'available'));
+            document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('first-turn-container').style.display = 'none';
+
             document.getElementById('setup-header').style.display = 'block';
             document.getElementById('setup-footer').style.display = 'flex';
             updateView();
@@ -1738,9 +1748,8 @@
 
         window.goBack = function() {
             if (tkState.step === 1) {
-                if (salaCodigo) {
-                    if (confirm('¿Salir de la sala y volver al menú principal?')) salirDeSala();
-                } else {
+                if (confirm('¿Salir del rastreador y volver al inicio?')) {
+                    localStorage.removeItem('herejaibas_tkPartida'); // Limpiar memoria al salir
                     window.location.href = 'index.html';
                 }
             } else if (tkState.step === 7) {
@@ -1749,19 +1758,22 @@
                     document.getElementById('setup-header').style.display = 'block'; 
                     document.getElementById('setup-footer').style.display = 'flex'; 
                     updateView();
-                    pushEstado();
                 }
             } else { 
                 tkState.step--; 
                 updateView(); 
-                pushEstado();
             }
         };
 
-        // Forzar reinicio limpio si el usuario usa el botón de "Atrás" del navegador
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                window.location.reload();
+                // En lugar de recargar infinitamente, solo redibujamos la vista actual
+                const savedState = localStorage.getItem('herejaibas_tkPartida');
+                if (savedState) {
+                    tkState = JSON.parse(savedState);
+                    updateView();
+                    checkNextButtonState();
+                }
             }
         });
 
