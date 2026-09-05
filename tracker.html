@@ -921,10 +921,10 @@
                 if (tkState.p1.battleReady) document.getElementById('tk-p1-br').classList.add('active');
                 if (tkState.p2.battleReady) document.getElementById('tk-p2-br').classList.add('active');
 
-                // 2. FIX: RECONSTRUIR LA INTERFAZ SEGÚN EL PASO GUARDADO
+                // 2. RECONSTRUIR LA INTERFAZ VISUAL SEGÚN EL PASO
                 if (tkState.step >= 2) {
-                    document.getElementById('label-p1-detachment').textContent = tkState.p1.name;
-                    document.getElementById('label-p2-detachment').textContent = tkState.p2.name;
+                    document.getElementById('label-p1-detachment').textContent = tkState.p1.name || "JUGADOR 1";
+                    document.getElementById('label-p2-detachment').textContent = tkState.p2.name || "JUGADOR 2";
                     renderDetachments(1); 
                     renderDetachments(2); 
                 }
@@ -932,8 +932,8 @@
                     setupForceDispositionButtons(); 
                 }
                 if (tkState.step >= 4) {
-                    document.getElementById('label-p1-role').textContent = tkState.p1.name;
-                    document.getElementById('label-p2-role').textContent = tkState.p2.name;
+                    document.getElementById('label-p1-role').textContent = tkState.p1.name || "JUGADOR 1";
+                    document.getElementById('label-p2-role').textContent = tkState.p2.name || "JUGADOR 2";
                     if (tkState.p1.role) {
                         document.getElementById('btn-p1-atk').classList.toggle('selected', tkState.p1.role === 'attacker');
                         document.getElementById('btn-p1-def').classList.toggle('selected', tkState.p1.role === 'defender');
@@ -944,8 +944,8 @@
                     }
                 }
                 if (tkState.step >= 5) {
-                    document.getElementById('label-p1-sec').textContent = tkState.p1.name;
-                    document.getElementById('label-p2-sec').textContent = tkState.p2.name;
+                    document.getElementById('label-p1-sec').textContent = tkState.p1.name || "JUGADOR 1";
+                    document.getElementById('label-p2-sec').textContent = tkState.p2.name || "JUGADOR 2";
                     if (tkState.p1.secType) {
                         document.getElementById('btn-p1-tac').classList.toggle('selected', tkState.p1.secType === 'tactical');
                         document.getElementById('btn-p1-fix').classList.toggle('selected', tkState.p1.secType === 'fixed');
@@ -956,10 +956,10 @@
                     }
                 }
                 if (tkState.step >= 6) {
-                    document.getElementById('btn-roll-p1').textContent = tkState.p1.name;
-                    document.getElementById('btn-roll-p2').textContent = tkState.p2.name;
-                    document.getElementById('btn-first-p1').textContent = tkState.p1.name;
-                    document.getElementById('btn-first-p2').textContent = tkState.p2.name;
+                    document.getElementById('btn-roll-p1').textContent = tkState.p1.name || "JUGADOR 1";
+                    document.getElementById('btn-roll-p2').textContent = tkState.p2.name || "JUGADOR 2";
+                    document.getElementById('btn-first-p1').textContent = tkState.p1.name || "JUGADOR 1";
+                    document.getElementById('btn-first-p2').textContent = tkState.p2.name || "JUGADOR 2";
                     
                     if (tkState.rollOffWinner) {
                         document.getElementById('btn-roll-p1').classList.toggle('selected', tkState.rollOffWinner === 1);
