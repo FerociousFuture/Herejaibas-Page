@@ -213,6 +213,18 @@
         }
 
         /* ============================================================
+           LOBBY / SALA EN TIEMPO REAL
+           ============================================================ */
+        #lobby-screen { display:none; position:fixed; inset:0; background:#0f1115; z-index:5000; align-items:center; justify-content:center; padding:20px; }
+        .lobby-card { width:100%; max-width:420px; background:#1a1c23; border:1px solid #3a3f4b; border-radius:16px; padding:30px 25px; }
+        .lobby-title { font-family:'Oswald', sans-serif; text-transform:uppercase; letter-spacing:2px; text-align:center; color:#f4f4f0; margin-bottom:6px; font-size:1.5rem; }
+        .lobby-desc { color:#aaa; font-size:0.85rem; text-align:center; margin-bottom:25px; line-height:1.4; }
+        .lobby-divider { text-align:center; color:#666; font-size:0.75rem; font-weight:800; letter-spacing:2px; margin:18px 0; }
+        .lobby-status { color:#f5a623; font-size:0.85rem; margin-top:18px; text-align:center; min-height:20px; }
+        #lobby-code-banner { display:none; position:fixed; top:0; left:0; right:0; background:#1a1c23; border-bottom:1px solid #3a3f4b; z-index:1500; padding:8px 15px; text-align:center; font-size:0.8rem; color:#aaa; letter-spacing:1px; }
+        #lobby-code-banner strong { color:#f5a623; letter-spacing:2px; }
+
+        /* ============================================================
            MODALS (CARTAS Y SECUNDARIAS)
            ============================================================ */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
@@ -311,6 +323,34 @@
         <p style="color: #aaa; font-size: 0.9rem;">Cargando misiones y jugadores desde La Disformidad</p>
     </div>
 
+    <!-- PANTALLA DE LOBBY (CREAR / UNIRSE A SALA) -->
+    <div id="lobby-screen">
+        <div class="lobby-card">
+            <h2 class="lobby-title">Sala de Partida</h2>
+            <p class="lobby-desc">Crea una sala y comparte el código con tu oponente, o únete con el código que te compartieron. Cada quien controla su propio lado desde su celular.</p>
+
+            <button class="tk-btn-toggle active" style="margin-bottom:15px;" onclick="crearSala()">
+                <i class="fas fa-plus"></i> CREAR NUEVA SALA
+            </button>
+
+            <div class="lobby-divider">— O —</div>
+
+            <input id="lobby-input-codigo" class="tk-input" maxlength="6" placeholder="CÓDIGO DE SALA" style="text-align:center; text-transform:uppercase; letter-spacing:4px; font-weight:800; margin-bottom:12px;">
+            <button class="tk-btn-toggle" onclick="unirseSala()"><i class="fas fa-sign-in-alt"></i> UNIRME A SALA</button>
+
+            <p id="lobby-status" class="lobby-status"></p>
+
+            <div style="text-align:center; margin-top:10px;">
+                <a href="#" onclick="jugarSinSala(); return false;" style="color:#666; font-size:0.75rem; text-decoration:underline;">Jugar en este dispositivo sin sincronizar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNER DE SALA ACTIVA -->
+    <div id="lobby-code-banner">
+        SALA <strong id="lobby-code-display"></strong> · Sos <strong id="lobby-slot-display" style="color:#fff;"></strong> · <span id="lobby-conn-status" style="color:#27ae60;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> En vivo</span>
+    </div>
+
     <div class="tracker-container" id="main-tracker-app">
         <!-- HEADER PARA PASOS 1 AL 6 -->
         <div class="tracker-header" id="setup-header">
@@ -354,6 +394,8 @@
                     </div>
 
                     <button id="tk-p1-br" class="tk-btn-toggle" style="margin-top: 5px;" onclick="toggleBattleReady(1)">BATTLE READY +10 PV</button>
+
+                    <textarea id="tk-p1-lista" class="tk-input p1-input" style="min-height:90px; resize:vertical; font-size:0.85rem; margin-top:10px;" placeholder="Pega aquí tu lista de ejército (texto libre)..." oninput="onListaInput(1)"></textarea>
                 </div>
 
                 <div class="player-setup-card" style="margin-top: 30px;">
@@ -379,6 +421,8 @@
                     </div>
 
                     <button id="tk-p2-br" class="tk-btn-toggle" style="margin-top: 5px;" onclick="toggleBattleReady(2)">BATTLE READY +10 PV</button>
+
+                    <textarea id="tk-p2-lista" class="tk-input p2-input" style="min-height:90px; resize:vertical; font-size:0.85rem; margin-top:10px;" placeholder="Pega aquí tu lista de ejército (texto libre)..." oninput="onListaInput(2)"></textarea>
                 </div>
             </div>
 
@@ -822,10 +866,251 @@
         /* ESTADO DEL TRACKER */
         let tkState = {
             step: 1, maxSteps: 7, round: 1,
-            p1: { id: '', name: 'JUGADOR 1', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
-            p2: { id: '', name: 'JUGADOR 2', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
-            rollOffWinner: 0, firstTurn: 0
+            p1: { id: '', name: 'JUGADOR 1', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [], lista: '' },
+            p2: { id: '', name: 'JUGADOR 2', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [], lista: '' },
+            rollOffWinner: 0, firstTurn: 0, finalizado: false
         };
+
+        /* ============================================================
+           SALA EN TIEMPO REAL (SUPABASE REALTIME)
+           ============================================================ */
+        let salaCodigo = localStorage.getItem('herejaibas_sala_codigo') || null;
+        let miSlot = localStorage.getItem('herejaibas_mi_slot') || null; // 'p1' | 'p2'
+        let salaVersion = 0;
+        let salaChannel = null;
+        let sbClient = null;
+        let pushTimer = null;
+        let aplicandoRemoto = false; // evita que un cambio remoto dispare un push de vuelta
+
+        function getSb() {
+            if (!sbClient) sbClient = supabase.createClient(window._sbUrl, window._sbAnon);
+            return sbClient;
+        }
+
+        function generarCodigoSala() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let c = '';
+            for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)];
+            return c;
+        }
+
+        window.crearSala = async function() {
+            const status = document.getElementById('lobby-status');
+            status.textContent = 'Creando sala...';
+            try {
+                const sb = getSb();
+                const codigo = generarCodigoSala();
+                const { data, error } = await sb.from('partidas_lobby')
+                    .insert([{ codigo_sala: codigo, estado_partida: tkState, version: 0 }])
+                    .select().single();
+                if (error) throw error;
+
+                salaCodigo = codigo; miSlot = 'p1'; salaVersion = data.version;
+                localStorage.setItem('herejaibas_sala_codigo', salaCodigo);
+                localStorage.setItem('herejaibas_mi_slot', miSlot);
+                tkState = data.estado_partida;
+                entrarASala();
+            } catch (err) {
+                console.error('Error al crear sala', err);
+                status.textContent = 'No se pudo crear la sala. Intenta de nuevo.';
+            }
+        };
+
+        window.unirseSala = async function() {
+            const status = document.getElementById('lobby-status');
+            const codigo = document.getElementById('lobby-input-codigo').value.trim().toUpperCase();
+            if (!codigo) { status.textContent = 'Escribe un código de sala.'; return; }
+            status.textContent = 'Buscando sala...';
+            try {
+                const sb = getSb();
+                const { data, error } = await sb.from('partidas_lobby').select('*').eq('codigo_sala', codigo).single();
+                if (error || !data) { status.textContent = 'No se encontró esa sala.'; return; }
+
+                salaCodigo = codigo; miSlot = 'p2'; salaVersion = data.version;
+                localStorage.setItem('herejaibas_sala_codigo', salaCodigo);
+                localStorage.setItem('herejaibas_mi_slot', miSlot);
+                tkState = data.estado_partida;
+                entrarASala();
+            } catch (err) {
+                console.error('Error al unirse a sala', err);
+                status.textContent = 'Error al unirse a la sala.';
+            }
+        };
+
+        window.jugarSinSala = function() {
+            salaCodigo = null; miSlot = null;
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('main-tracker-app').style.display = 'flex';
+            const savedState = localStorage.getItem('herejaibas_tkPartida');
+            if (savedState) {
+                tkState = JSON.parse(savedState);
+                rellenarSelectsDesdeEstado();
+                if (tkState.step === 7) {
+                    document.getElementById('setup-header').style.display = 'none';
+                    document.getElementById('setup-footer').style.display = 'none';
+                    renderTrackerBoard();
+                } else {
+                    renderizarPasoActual();
+                }
+            }
+            checkNextButtonState();
+        };
+
+        function entrarASala() {
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('lobby-code-banner').style.display = 'block';
+            document.getElementById('lobby-code-display').textContent = salaCodigo;
+            document.getElementById('lobby-slot-display').textContent = miSlot === 'p1' ? 'JUGADOR 1' : 'JUGADOR 2';
+            document.body.style.paddingTop = '36px';
+            document.getElementById('main-tracker-app').style.display = 'flex';
+            suscribirseASala();
+
+            if (tkState.step === 7) {
+                document.getElementById('setup-header').style.display = 'none';
+                document.getElementById('setup-footer').style.display = 'none';
+                renderTrackerBoard();
+            } else {
+                rellenarSelectsDesdeEstado();
+                renderizarPasoActual();
+            }
+            checkNextButtonState();
+            lockOpponentControls();
+        }
+
+        function suscribirseASala() {
+            const sb = getSb();
+            salaChannel = sb.channel('sala-' + salaCodigo)
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'partidas_lobby', filter: `codigo_sala=eq.${salaCodigo}` }, (payload) => {
+                    recibirEstadoRemoto(payload.new);
+                })
+                .subscribe((estado) => {
+                    const el = document.getElementById('lobby-conn-status');
+                    if (!el) return;
+                    if (estado === 'SUBSCRIBED') { el.style.color = '#27ae60'; el.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;"></i> En vivo'; }
+                    else if (estado === 'CHANNEL_ERROR' || estado === 'TIMED_OUT') { el.style.color = '#e24a4a'; el.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;"></i> Sin conexión'; }
+                });
+        }
+
+        function recibirEstadoRemoto(fila) {
+            if (aplicandoRemoto) return;
+            salaVersion = fila.version;
+            const remoto = fila.estado_partida;
+            if (!remoto) return;
+
+            aplicandoRemoto = true;
+            try {
+                const miParte = miSlot === 'p1' ? 'p1' : 'p2';
+                // Mi propia sección manda localmente (por si tengo cambios sin confirmar); el resto se adopta del remoto.
+                const miSeccionLocal = tkState[miParte];
+                tkState = remoto;
+                tkState[miParte] = miSeccionLocal;
+
+                if (tkState.step === 7) {
+                    if (document.getElementById('setup-header').style.display !== 'none') {
+                        document.getElementById('setup-header').style.display = 'none';
+                        document.getElementById('setup-footer').style.display = 'none';
+                    }
+                    renderTrackerBoard();
+                } else {
+                    rellenarSelectsDesdeEstado();
+                    renderizarPasoActual();
+                }
+            } finally {
+                aplicandoRemoto = false;
+            }
+        }
+
+        function renderizarPasoActual() {
+            // Re-renderiza el contenido específico del paso actual (además de updateView, que solo cambia de vista)
+            if (tkState.step === 2) { renderDetachments(1); renderDetachments(2); }
+            else if (tkState.step === 3) { setupForceDispositionButtons(); }
+            updateView();
+        }
+
+        function rellenarSelectsDesdeEstado() {
+            const s1 = document.getElementById('tk-p1-id'); const s2 = document.getElementById('tk-p2-id');
+            const f1 = document.getElementById('tk-p1-faction'); const f2 = document.getElementById('tk-p2-faction');
+            if (s1 && tkState.p1.id) s1.value = tkState.p1.id;
+            if (s2 && tkState.p2.id) s2.value = tkState.p2.id;
+            if (f1 && tkState.p1.faction) f1.value = tkState.p1.faction;
+            if (f2 && tkState.p2.faction) f2.value = tkState.p2.faction;
+            const l1 = document.getElementById('tk-p1-lista'); const l2 = document.getElementById('tk-p2-lista');
+            if (l1 && tkState.p1.lista !== undefined) l1.value = tkState.p1.lista;
+            if (l2 && tkState.p2.lista !== undefined) l2.value = tkState.p2.lista;
+        }
+
+        window.onListaInput = function(pNum) {
+            const val = document.getElementById(`tk-p${pNum}-lista`).value;
+            if (pNum === 1) tkState.p1.lista = val; else tkState.p2.lista = val;
+            pushEstado();
+        };
+
+        function pushEstado() {
+            if (!salaCodigo) return; // Modo "jugar sin sala": no hay nada que sincronizar
+            clearTimeout(pushTimer);
+            pushTimer = setTimeout(() => intentarPush(), 350);
+        }
+
+        async function intentarPush(intentos = 0) {
+            if (!salaCodigo || aplicandoRemoto) return;
+            const sb = getSb();
+            const payload = JSON.parse(JSON.stringify(tkState));
+            const { data, error } = await sb.from('partidas_lobby')
+                .update({ estado_partida: payload, version: salaVersion + 1 })
+                .eq('codigo_sala', salaCodigo)
+                .eq('version', salaVersion)
+                .select();
+
+            if (error) { console.error('Error al sincronizar', error); return; }
+
+            if (!data || data.length === 0) {
+                // Alguien escribió antes que nosotros: traemos lo fresco, conservamos SOLO nuestra sección y reintentamos.
+                if (intentos >= 5) return;
+                const { data: fresh } = await sb.from('partidas_lobby').select('*').eq('codigo_sala', salaCodigo).single();
+                if (!fresh) return;
+                salaVersion = fresh.version;
+                const miParte = miSlot === 'p1' ? 'p1' : 'p2';
+                const miSeccionLocal = tkState[miParte];
+                tkState = fresh.estado_partida;
+                tkState[miParte] = miSeccionLocal;
+                return intentarPush(intentos + 1);
+            }
+            salaVersion = data[0].version;
+        }
+
+        function lockOpponentControls() {
+            if (!miSlot) return; // Modo "jugar sin sala": sin bloqueos
+            const opp = miSlot === 'p1' ? 2 : 1;
+            const funcsBloqueadas = ['selectForce', 'setRole', 'setSecType', 'setRollWinner', 'setFirstTurn', 'addDetachment', 'removeDetachment', 'toggleBattleReady', 'updateCP', 'scorePrimary', 'drawSecondary', 'openActionModal', 'editScore'];
+
+            document.querySelectorAll('[onclick]').forEach(el => {
+                const oc = el.getAttribute('onclick');
+                if (!oc) return;
+                const m = oc.match(/^([a-zA-Z_]+)\(\s*(\d+)/);
+                if (m && funcsBloqueadas.includes(m[1]) && parseInt(m[2], 10) === opp) {
+                    el.removeAttribute('onclick');
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.35';
+                    el.style.filter = 'grayscale(1)';
+                    el.style.cursor = 'not-allowed';
+                }
+            });
+
+            ['id', 'faction', 'detachment-select', 'br'].forEach(suf => {
+                const el = document.getElementById(`tk-p${opp}-${suf}`);
+                if (el) { el.disabled = true; el.style.opacity = '0.5'; }
+            });
+
+            // La lista del oponente se puede LEER, no editar
+            const listaOpp = document.getElementById(`tk-p${opp}-lista`);
+            if (listaOpp) { listaOpp.readOnly = true; listaOpp.style.borderStyle = 'dashed'; }
+
+            // Si la partida ya fue finalizada por el otro dispositivo, bloquear el botón de subida
+            if (tkState.finalizado) {
+                const btnEnd = document.getElementById('btn-end-match');
+                if (btnEnd) { btnEnd.disabled = true; btnEnd.innerHTML = '<i class="fas fa-check"></i> PARTIDA FINALIZADA'; }
+            }
+        }
 
         async function loadPlayers(sbClient) {
             const { data: jData, error: jErr } = await sbClient.from('jugadores').select('id, nombre').order('nombre');
@@ -907,30 +1192,27 @@
 
         async function initTracker() {
             await loadSupabaseData(); // Esperar a Supabase
+            document.getElementById('main-tracker-app').style.display = 'none'; // La app se muestra recién al entrar a una sala (o en modo local)
 
-            const savedState = localStorage.getItem('herejaibas_tkPartida');
-            if (savedState) {
-                tkState = JSON.parse(savedState);
-                
-                document.getElementById('tk-p1-id').value = tkState.p1.id;
-                document.getElementById('tk-p2-id').value = tkState.p2.id;
-                document.getElementById('tk-p1-faction').value = tkState.p1.faction;
-                document.getElementById('tk-p2-faction').value = tkState.p2.faction;
-                
-                if (tkState.p1.battleReady) document.getElementById('tk-p1-br').classList.add('active');
-                if (tkState.p2.battleReady) document.getElementById('tk-p2-br').classList.add('active');
-
-                if (tkState.step === 7) {
-                    document.getElementById('setup-header').style.display = 'none';
-                    document.getElementById('setup-footer').style.display = 'none';
-                    renderTrackerBoard();
+            if (salaCodigo && miSlot) {
+                // Ya estábamos en una sala (recarga de página): reconectar
+                try {
+                    const sb = getSb();
+                    const { data, error } = await sb.from('partidas_lobby').select('*').eq('codigo_sala', salaCodigo).single();
+                    if (error || !data) throw new Error('La sala ya no existe');
+                    salaVersion = data.version;
+                    tkState = data.estado_partida;
+                    entrarASala();
+                    return;
+                } catch (e) {
+                    console.warn('No se pudo reconectar a la sala guardada', e);
+                    localStorage.removeItem('herejaibas_sala_codigo');
+                    localStorage.removeItem('herejaibas_mi_slot');
+                    salaCodigo = null; miSlot = null;
                 }
-                updateView();
-                checkNextButtonState();
-                return;
             }
-            
-            checkNextButtonState();
+
+            document.getElementById('lobby-screen').style.display = 'flex';
         }
 
         window.refreshPlayers = async function() {
@@ -1197,6 +1479,8 @@
             document.getElementById('tb-p2-draw').disabled = tkState.p2.deck.length === 0;
             
             localStorage.setItem('herejaibas_tkPartida', JSON.stringify(tkState));
+            pushEstado();
+            lockOpponentControls();
         }
 
         window.changeRound = function(delta) {
@@ -1681,9 +1965,20 @@
         document.getElementById('tk-p1-faction').addEventListener('change', checkNextButtonState);
         document.getElementById('tk-p2-faction').addEventListener('change', checkNextButtonState);
 
+        function salirDeSala() {
+            if (salaChannel) { try { getSb().removeChannel(salaChannel); } catch(e) {} }
+            localStorage.removeItem('herejaibas_sala_codigo');
+            localStorage.removeItem('herejaibas_mi_slot');
+            localStorage.removeItem('herejaibas_tkPartida');
+            // Recarga limpia: como si acabaras de abrir la página, directo al lobby de sala.
+            window.location.reload();
+        }
+
         window.goBack = function() {
             if (tkState.step === 1) {
-                if(confirm('¿Salir del rastreador y volver a la comunidad?')) window.location.href = 'index.html';
+                if (salaCodigo) {
+                    if (confirm('¿Salir de la sala y volver a la pantalla de crear/unirse a sala? Se perderá el progreso de esta configuración.')) salirDeSala();
+                } else if (confirm('¿Salir del rastreador y volver a la comunidad?')) window.location.href = 'index.html';
             } else if (tkState.step === 7) {
                 if(confirm('¿Seguro que quieres volver a la configuración? Se perderá el progreso de la partida.')) {
                     tkState.step = 6;
@@ -1746,6 +2041,8 @@
                 checkNextButtonState();
             }
             localStorage.setItem('herejaibas_tkPartida', JSON.stringify(tkState));
+            pushEstado();
+            lockOpponentControls();
         }
 
         document.addEventListener('keydown', function(e) {
@@ -1755,11 +2052,27 @@
         document.addEventListener('DOMContentLoaded', initTracker);
 
         window.finalizarYSubir = async function() {
+            if (tkState.finalizado) { alert('Esta partida ya fue finalizada desde el otro dispositivo.'); return; }
             if(!confirm('¿Finalizar partida y subir resultado a la base de datos?')) return;
 
             const btn = document.getElementById('btn-end-match');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SUBIENDO...';
             btn.disabled = true;
+
+            if (salaCodigo) {
+                // Última verificación contra el servidor para evitar que ambos suban el resultado
+                const sbCheck = getSb();
+                const { data: fresh } = await sbCheck.from('partidas_lobby').select('*').eq('codigo_sala', salaCodigo).single();
+                if (fresh && fresh.estado_partida && fresh.estado_partida.finalizado) {
+                    alert('Tu oponente ya finalizó y subió esta partida.');
+                    tkState.finalizado = true;
+                    renderTrackerBoard();
+                    return;
+                }
+                if (fresh) salaVersion = fresh.version;
+                tkState.finalizado = true;
+                await intentarPush();
+            }
 
             const p1Total = tkState.p1.vpPrimary + tkState.p1.vpSecondary + (tkState.p1.battleReady ? 10 : 0);
             const p2Total = tkState.p2.vpPrimary + tkState.p2.vpSecondary + (tkState.p2.battleReady ? 10 : 0);
@@ -1789,7 +2102,9 @@
                 if (error) throw error;
 
                 alert('¡Partida registrada con éxito!');
-                localStorage.removeItem('herejaibas_tkPartida'); 
+                localStorage.removeItem('herejaibas_tkPartida');
+                localStorage.removeItem('herejaibas_sala_codigo');
+                localStorage.removeItem('herejaibas_mi_slot');
                 window.location.href = 'ranking.html';
 
             } catch (err) {
