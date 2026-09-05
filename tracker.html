@@ -1683,14 +1683,32 @@
 
         window.goBack = function() {
             if (tkState.step === 1) {
-                if(confirm('¿Salir del rastreador y volver a la comunidad?')) window.location.href = 'index.html';
+                if (salaCodigo) {
+                    if (confirm('¿Salir de la sala y volver al menú principal?')) salirDeSala();
+                } else {
+                    window.location.href = 'index.html';
+                }
             } else if (tkState.step === 7) {
                 if(confirm('¿Seguro que quieres volver a la configuración? Se perderá el progreso de la partida.')) {
                     tkState.step = 6;
-                    document.getElementById('setup-header').style.display = 'block'; document.getElementById('setup-footer').style.display = 'flex'; updateView();
+                    document.getElementById('setup-header').style.display = 'block'; 
+                    document.getElementById('setup-footer').style.display = 'flex'; 
+                    updateView();
+                    pushEstado();
                 }
-            } else { tkState.step--; updateView(); }
+            } else { 
+                tkState.step--; 
+                updateView(); 
+                pushEstado();
+            }
         };
+
+        // Forzar reinicio limpio si el usuario usa el botón de "Atrás" del navegador
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
 
         window.nextTrackerStep = function() {
             if (tkState.step === 1) {
@@ -1799,6 +1817,17 @@
                 btn.disabled = false;
             }
         };
+        window.addEventListener('pageshow', function(event) {
+            // Detecta si la página viene de la caché del historial (Botón atrás/adelante)
+            const vieneDelHistorial = event.persisted || 
+                                     (window.performance && window.performance.navigation.type === 2);
+            
+            if (vieneDelHistorial) {
+                // Forzamos una recarga limpia para reconectar Supabase y reactivar los botones
+                window.location.reload();
+            }
+        });
+
     </script>
 </body>
 </html>
