@@ -123,6 +123,13 @@
     <script src="supabase-config.js"></script>
     
     <script>
+        // Función para limpiar XSS (Escapa caracteres peligrosos)
+        function sanitizeHTML(str) {
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = str;
+            return tempDiv.innerHTML;
+        }
+
         // Permite guardar presionando la tecla "Enter"
         function handleEnter(e) {
             if (e.key === 'Enter') {
@@ -132,10 +139,10 @@
 
         async function guardarJugador() {
             const nombreInput = document.getElementById('nombre-input');
-            const nombre = nombreInput.value.trim();
+            let nombreLimpio = sanitizeHTML(nombreInput.value.trim());
             const btn = document.getElementById('btn-guardar');
 
-            if(!nombre) { 
+            if(!nombreLimpio) { 
                 alert("Por favor ingresa un nombre válido."); 
                 nombreInput.focus();
                 return; 
@@ -149,21 +156,19 @@
                 // Inicializar Supabase
                 const sb = supabase.createClient(window._sbUrl, window._sbAnon);
                 
-                // Insertar el nuevo jugador
+                // Insertar el nuevo jugador ya sanitizado
                 const { error } = await sb
                     .from('jugadores')
-                    .insert([{ nombre: nombre }]);
+                    .insert([{ nombre: nombreLimpio }]);
                 
                 if (error) throw error;
 
                 // Alerta de éxito y cerrar ventana
                 alert("¡Jugador registrado con éxito!\nYa puedes cerrar esta ventana y refrescar la lista en el Tracker.");
                 
-                // Limpiar el campo por si la pestaña no se cierra automáticamente
                 nombreInput.value = '';
                 btn.innerHTML = '<i class="fas fa-check"></i> GUARDADO';
                 
-                // Intenta cerrar la pestaña (algunos navegadores bloquean esto si no fue abierta por JS)
                 window.close(); 
                 
             } catch(e) {
@@ -174,7 +179,6 @@
             }
         }
         
-        // Poner el foco en el input al cargar la página
         window.onload = function() {
             document.getElementById('nombre-input').focus();
         };
