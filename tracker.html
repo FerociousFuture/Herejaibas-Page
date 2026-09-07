@@ -1352,7 +1352,7 @@
             renderTrackerBoard();
         };
 
-        /* ---------------- FORMULARIO INTELIGENTE DE PRIMARIAS ---------------- */
+        /* ---------------- FORMULARIO INTELIGENTE DE PRIMARIAS (CON RESTRICCIÓN DE RONDA) ---------------- */
         window.scorePrimary = function(pNum) {
             const pState = pNum === 1 ? tkState.p1 : tkState.p2;
             const oppState = pNum === 1 ? tkState.p2 : tkState.p1;
@@ -1364,16 +1364,46 @@
             if (!pState.roundScores[tkState.round].inputs) pState.roundScores[tkState.round].inputs = {};
             
             const savedInputs = pState.roundScores[tkState.round].inputs;
+            const currentRound = tkState.round;
 
             document.getElementById('am-name').textContent = missionData.name;
             document.getElementById('am-pnum').value = pNum;
-            document.querySelector('#action-modal .am-subtitle').textContent = `FORMULARIO · RONDA ${tkState.round}`;
+            document.querySelector('#action-modal .am-subtitle').textContent = `FORMULARIO · RONDA ${currentRound}`;
 
             let html = `<div id="pri-form-${pNum}" style="text-align:left; display:flex; flex-direction:column; gap:6px; margin-bottom:20px; max-height: 55vh; overflow-y:auto; padding-right:5px;">`;
             
             missionData.rules.forEach((r, idx) => {
-                html += `<div style="margin-bottom: 12px; border-bottom: 1px solid #2a2e38; padding-bottom: 12px;">
-                            <div style="font-weight:900; color:#4a90e2; margin-bottom:8px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${r.title}</div>`;
+                // Función auxiliar para determinar si la regla aplica en la ronda actual
+                let isRoundValid = true;
+                const titleLower = r.title.toLowerCase();
+                
+                if (titleLower.includes("fin de la batalla")) {
+                    isRoundValid = currentRound === 5;
+                } else if (titleLower.includes("de la 2da a la 4ta")) {
+                    isRoundValid = currentRound >= 2 && currentRound <= 4;
+                } else if (titleLower.includes("1ra y 2da")) {
+                    isRoundValid = currentRound === 1 || currentRound === 2;
+                } else if (titleLower.includes("2da y 3ra")) {
+                    isRoundValid = currentRound === 2 || currentRound === 3;
+                } else if (titleLower.includes("de la 2da ronda en adelante")) {
+                    isRoundValid = currentRound >= 2;
+                } else if (titleLower.includes("4ta ronda de batalla en adelante")) {
+                    isRoundValid = currentRound >= 4;
+                } else if (titleLower.includes("5ta ronda")) {
+                    isRoundValid = currentRound === 5;
+                } else if (titleLower.includes("1ra ronda")) {
+                    isRoundValid = currentRound === 1;
+                }
+                // Si dice "Cualquier Ronda de Batalla", isRoundValid se queda en true
+
+                // Si no es válida, la bloqueamos visual y funcionalmente
+                const disabledStyle = !isRoundValid ? 'opacity: 0.3; pointer-events: none;' : '';
+                const titleColor = !isRoundValid ? '#666' : '#4a90e2';
+
+                html += `<div style="margin-bottom: 12px; border-bottom: 1px solid #2a2e38; padding-bottom: 12px; ${disabledStyle}">
+                            <div style="font-weight:900; color:${titleColor}; margin-bottom:8px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">
+                                ${r.title} ${!isRoundValid ? '<span style="color:#e24a4a;">(No disponible esta ronda)</span>' : ''}
+                            </div>`;
                 
                 const val = parseInt(r.vp[0]);
                 const cleanDesc = r.desc.replace(/<\/?[^>]+(>|$)/g, "");
@@ -1447,7 +1477,7 @@
                                 </div>
                              </div>`;
                 }
-                html += `</div>`;
+                html += `</div>`; // Cierra el div de la regla
             });
 
             html += `</div>
@@ -1897,7 +1927,10 @@
                 document.getElementById('label-p1-detachment').textContent = tkState.p1.name; document.getElementById('label-p2-detachment').textContent = tkState.p2.name;
                 renderDetachments(1); renderDetachments(2);
             }
-            else if (tkState.step === 2) { if (tkState.p1.detachments.length === 0 || tkState.p2.detachments.length === 0) return; setupForceDispositionButtons(); }
+            else if (tkState.step === 2) { 
+                if (tkState.p1.detachments.length === 0 || tkState.p2.detachments.length === 0) return; 
+                setupForceDispositionButtons(); 
+            }
             else if (tkState.step === 3) {
                 if (!tkState.p1.forceDisposition || !tkState.p2.forceDisposition) return;
                 const m1 = MISSION_MATRIX[`${tkState.p1.forceDisposition}_${tkState.p2.forceDisposition}`];
@@ -1923,13 +1956,20 @@
             }
             else if (tkState.step === 7) { 
                 if (!tkState.rollOffWinner || !tkState.firstTurn) return; 
+                
+                // Avanzamos el paso ANTES de iniciar el Tracker Board para que se oculte el footer
+                tkState.step = 8;
                 document.getElementById('setup-header').style.display = 'none'; 
                 document.getElementById('setup-footer').style.display = 'none'; 
                 initTrackerBoard();
-                return; 
+                updateView();
+                return; // Evita la doble ejecución de step++ abajo
             }
             
-            if (tkState.step < tkState.maxSteps) { tkState.step++; updateView(); }
+            if (tkState.step < tkState.maxSteps) { 
+                tkState.step++; 
+                updateView(); 
+            }
         };
 
         function updateView() {
