@@ -10,7 +10,7 @@
     
     <style>
         /* ============================================================
-           ESTILOS DEL TRACKER (APARIENCIA DE APP NATIVA)
+           ESTILOS DEL TRACKER
            ============================================================ */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -27,7 +27,6 @@
             justify-content: center;
         }
 
-        /* Pantalla de Carga Inicial */
         #loading-screen {
             position: fixed; inset: 0; background: #0f1115; z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -36,15 +35,9 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .tracker-container {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            padding: 30px 15px;
-            display: none; /* Se muestra cuando carga Supabase */
+            width: 100%; max-width: 800px; display: flex; flex-direction: column; padding: 30px 15px; display: none; 
         }
 
-        /* Encabezado y Pasos */
         .tracker-header { text-align: center; margin-bottom: 30px; }
         .tracker-steps { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; gap: 5px; }
         .t-step { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #888; background: #1a1c23; font-weight: 600; transition: all 0.3s; flex-shrink: 0; }
@@ -56,7 +49,6 @@
         .tracker-subtitle { color: #f5a623; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; font-weight: 800; }
         .tracker-desc { color: #aaa; font-size: 0.9rem; line-height: 1.4; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; padding: 0 10px;}
 
-        /* Contenido y Entradas */
         .tracker-body { flex: 1; }
         .tracker-view { display: none; }
         .tracker-view.active { display: block; animation: fadeIn 0.3s ease; }
@@ -76,14 +68,12 @@
         .tk-select:disabled { opacity: 0.5; cursor: not-allowed; }
         .tk-select-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #aaa; pointer-events: none; }
 
-        /* Helpers nuevo jugador (CON ESPACIOS CORREGIDOS) */
         .player-helper-text { text-align: right; font-size: 0.85rem; color: #888; margin-top: 4px; margin-bottom: 20px; display: block;}
         .new-player-link { color: #f5a623; font-weight: 800; text-decoration: none; letter-spacing: 1px; transition: 0.2s; padding: 5px; border-radius: 4px; }
         .new-player-link:hover { color: #000; background: #f5a623; }
         .refresh-btn { font-size: 0.8rem; color:#aaa; cursor:pointer; font-weight:bold; letter-spacing:1px; transition: color 0.2s; padding: 8px; border: 1px solid #3a3f4b; border-radius: 6px; background: #1a1c23; }
         .refresh-btn:hover { color: #fff; border-color: #888; }
 
-        /* Lista de Destacamentos y Puntos */
         .dp-tracker-badge { background: #1a1c23; border: 1px solid #f5a623; color: #f5a623; padding: 5px 12px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; }
         .dp-tracker-badge.full { background: #f5a623; color: #000; }
         .selected-detachment { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid #3a3f4b; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; }
@@ -96,7 +86,6 @@
         .tk-btn-toggle { width: 100%; background: #23262f; border: 1px solid #3a3f4b; border-radius: 8px; padding: 16px; color: #888; font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
         .tk-btn-toggle.active { background: #27ae60; border-color: #27ae60; color: #fff; }
 
-        /* ===== PASOS EN GRID ===== */
         .force-grid, .general-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .force-col { display: flex; flex-direction: column; gap: 10px; }
         
@@ -119,6 +108,17 @@
         .ms-title { font-family: 'Oswald', sans-serif; font-size: 1.3rem; color: #fff; line-height: 1.1; text-transform: uppercase; margin-bottom: 12px; word-wrap: break-word;}
         .ms-view { position: absolute; right: 16px; bottom: 16px; font-size: 0.75rem; color: #aaa; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 4px; }
 
+        /* ===== MAPA / LAYOUT ===== */
+        .layout-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
+        .layout-btn { background: #112; border: 1px solid #3a3f4b; color: #aaa; font-family: 'Oswald', sans-serif; font-size: 1.1rem; padding: 12px 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; letter-spacing: 1px; width: 100%; text-align: center; }
+        .layout-btn:hover { color: #fff; background: #2a2e38; }
+        .layout-btn.active { background: #f5a623; border-color: #f5a623; color: #000; font-weight: 700; }
+        .layout-image-container { width: 100%; border-radius: 8px; overflow: hidden; border: 1px dashed #3a3f4b; background: #0f1115; min-height: 250px; display: flex; align-items: center; justify-content: center; position: relative; cursor: zoom-in; }
+        .layout-image-container img { width: 100%; height: auto; display: none; transition: 0.3s; }
+        .layout-image-container img:hover { filter: brightness(1.2); }
+        .layout-placeholder { color: #666; font-size: 0.9rem; text-align: center; padding: 40px; }
+        .zoom-hint { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; pointer-events: none; display: none; }
+
         .grid-btn { background: #1a1c23; border: 1px solid #3a3f4b; border-radius: 12px; color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; padding: 25px 10px; cursor: pointer; transition: all 0.2s; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
         .grid-btn small { font-size: 0.75rem; font-weight: 600; font-family: 'Exo 2', sans-serif; opacity: 0.7; display: block; margin-top: 6px; letter-spacing: 0.5px; text-transform: none;}
         .grid-btn:hover { background: #23262f; }
@@ -126,7 +126,6 @@
         .p2-btn.selected { background: #e24a4a; border-color: #e24a4a; color: #fff; } .p2-btn.selected small { opacity: 1; }
         .roll-question { text-align: center; color: #aaa; margin-bottom: 15px; font-weight: 800; letter-spacing: 2px; font-size: 0.9rem; text-transform: uppercase; }
 
-        /* Botones de Navegación */
         .tracker-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
         .tk-btn-nav { background: none; border: none; color: #888; font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; font-family: 'Exo 2', sans-serif; transition: color 0.2s; }
         .tk-btn-nav:hover { color: #fff; }
@@ -135,7 +134,7 @@
         .tk-btn-next:disabled { opacity: 0.5; cursor: not-allowed; background: #555; color: #aaa; }
 
         /* ============================================================
-           TRACKER BOARD (PASO 7)
+           TRACKER BOARD (PASO 8)
            ============================================================ */
         .tracker-board { width: 100%; display: flex; flex-direction: column; gap: 20px; }
         
@@ -198,12 +197,9 @@
         .tb-btn-draw.p2 { background: #e24a4a; } .tb-btn-draw.p2:hover { background: #ef5858; }
         .tb-btn-draw:disabled { background: #3a3f4b; color: #888; cursor: not-allowed; }
 
-        /* ============================================================
-           MEDIA QUERIES (MOBILE / TABLET)
-           ============================================================ */
         @media (max-width: 768px) {
             .tracker-title { font-size: 1.6rem; }
-            .tb-main-grid { grid-template-columns: 1fr; } /* Colapsar columnas de jugadores en móvil */
+            .tb-main-grid { grid-template-columns: 1fr; } 
             .force-grid, .general-grid, .mission-summary-grid { grid-template-columns: 1fr; }
             .tb-score-val { font-size: 3.2rem; }
             .tb-vp-big { font-size: 2.2rem; }
@@ -223,7 +219,6 @@
         .modal-close { position: absolute; top: 15px; right: 15px; background: #e24a4a; border: 2px solid #fff; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 9999; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.2s;}
         .modal-close:hover { background: #ff1c1c; transform: scale(1.1); }
 
-        /* Diseño interno de la Carta */
         .m-card { background: #f1ede1; overflow: hidden; color: #112; font-family: 'Exo 2', sans-serif; border-radius: 12px; position: relative; }
         .m-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 25px; color: #fff; position: relative; }
         .m-header-info { display: flex; flex-direction: column; z-index: 1;}
@@ -312,7 +307,7 @@
     </div>
 
     <div class="tracker-container" id="main-tracker-app">
-        <!-- HEADER PARA PASOS 1 AL 6 -->
+        <!-- HEADER PARA PASOS 1 AL 7 -->
         <div class="tracker-header" id="setup-header">
             <div class="tracker-steps" id="step-indicators">
                 <div class="t-step active" id="step-1">1</div><div class="t-line"></div>
@@ -320,16 +315,17 @@
                 <div class="t-step" id="step-3">3</div><div class="t-line"></div>
                 <div class="t-step" id="step-4">4</div><div class="t-line"></div>
                 <div class="t-step" id="step-5">5</div><div class="t-line"></div>
-                <div class="t-step" id="step-6">6</div>
+                <div class="t-step" id="step-6">6</div><div class="t-line"></div>
+                <div class="t-step" id="step-7">7</div>
             </div>
             <h2 class="tracker-title" id="header-title">JUGADORES</h2>
-            <p class="tracker-subtitle" id="header-subtitle">PASO 1 DE 6</p>
+            <p class="tracker-subtitle" id="header-subtitle">PASO 1 DE 7</p>
             <p class="tracker-desc" id="header-desc">Selecciona a los jugadores y elige su facción.</p>
         </div>
 
         <div class="tracker-body">
             
-            <!-- ===== PASOS DE CONFIGURACIÓN 1 a 6 ===== -->
+            <!-- ===== PASOS DE CONFIGURACIÓN ===== -->
             <div id="tracker-step-1" class="tracker-view active">
                 <div class="player-setup-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -349,7 +345,7 @@
                     </div>
 
                     <div class="tk-select-wrap" style="margin-top: 5px;">
-                        <select id="tk-p1-faction" class="tk-input tk-select"><option value="">Facción (obligatorio)</option></select>
+                        <select id="tk-p1-faction" class="tk-input tk-select" onchange="checkNextButtonState()"><option value="">Facción (obligatorio)</option></select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
 
@@ -374,7 +370,7 @@
                     </div>
 
                     <div class="tk-select-wrap" style="margin-top: 5px;">
-                        <select id="tk-p2-faction" class="tk-input tk-select"><option value="">Facción (obligatorio)</option></select>
+                        <select id="tk-p2-faction" class="tk-input tk-select" onchange="checkNextButtonState()"><option value="">Facción (obligatorio)</option></select>
                         <i class="fas fa-chevron-down tk-select-icon"></i>
                     </div>
 
@@ -432,7 +428,33 @@
                 </div>
             </div>
 
+            <!-- NUEVO PASO 4: MAPA DE TERRENO -->
             <div id="tracker-step-4" class="tracker-view">
+                <div class="player-setup-card">
+                    <div class="mission-summary-card" style="margin-bottom: 20px; text-align: center; min-height: auto; border-bottom: 3px solid #f5a623; padding: 15px;">
+                        <div class="ms-label" style="color:#888;">MISIÓN COMBINADA</div>
+                        <div class="ms-title" id="ms-combined-title" style="color:#f5a623; font-size: 1.6rem; margin-bottom: 0;">-</div>
+                    </div>
+                    <div class="layout-header">
+                        <h3 style="color: #fff; font-family: 'Oswald', sans-serif; letter-spacing: 1px; font-size: 1.2rem; text-align: center; margin-bottom: 15px;">MAPA DE TERRENO</h3>
+                    </div>
+                    <div class="layout-buttons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px;">
+                        <button class="layout-btn" id="btn-layout-1" onclick="selectLayout(1)" style="background: #112; border: 1px solid #3a3f4b; color: #aaa; font-family: 'Oswald', sans-serif; font-size: 1.1rem; padding: 12px 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; letter-spacing: 1px;">LAYOUT A</button>
+                        <button class="layout-btn" id="btn-layout-2" onclick="selectLayout(2)" style="background: #112; border: 1px solid #3a3f4b; color: #aaa; font-family: 'Oswald', sans-serif; font-size: 1.1rem; padding: 12px 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; letter-spacing: 1px;">LAYOUT B</button>
+                        <button class="layout-btn" id="btn-layout-3" onclick="selectLayout(3)" style="background: #112; border: 1px solid #3a3f4b; color: #aaa; font-family: 'Oswald', sans-serif; font-size: 1.1rem; padding: 12px 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; letter-spacing: 1px;">LAYOUT C</button>
+                    </div>
+                    <div class="layout-image-container" id="layout-container" onclick="if(tkState.mapLayout) openLightbox(document.getElementById('layout-image').src)" style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px dashed #3a3f4b; background: #0f1115; min-height: 250px; display: flex; align-items: center; justify-content: center; position: relative; cursor: zoom-in;">
+                        <div class="layout-placeholder" id="layout-placeholder" style="color: #666; font-size: 0.9rem; text-align: center; padding: 40px;">
+                            <i class="fas fa-map" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
+                            Selecciona un Layout
+                        </div>
+                        <img id="layout-image" src="" alt="Layout de Terreno" style="width: 100%; height: auto; display: none; transition: 0.3s;">
+                        <div class="zoom-hint" id="zoom-hint" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; pointer-events: none; display: none;"><i class="fas fa-search-plus"></i> Clic para ampliar</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tracker-step-5" class="tracker-view">
                 <div class="player-setup-card">
                     <label class="p1-label" id="label-p1-role">JUGADOR 1</label>
                     <div class="general-grid">
@@ -449,7 +471,7 @@
                 </div>
             </div>
 
-            <div id="tracker-step-5" class="tracker-view">
+            <div id="tracker-step-6" class="tracker-view">
                 <div class="player-setup-card">
                     <label class="p1-label" id="label-p1-sec">JUGADOR 1</label>
                     <div class="general-grid">
@@ -466,7 +488,7 @@
                 </div>
             </div>
 
-            <div id="tracker-step-6" class="tracker-view">
+            <div id="tracker-step-7" class="tracker-view">
                 <div class="player-setup-card">
                     <div class="roll-question">¿QUIÉN GANÓ LA TIRADA?</div>
                     <div class="general-grid">
@@ -483,8 +505,8 @@
                 </div>
             </div>
 
-            <!-- ================= PASO 7: RASTREADOR (TRACKER) ================= -->
-            <div id="tracker-step-7" class="tracker-view">
+            <!-- ================= PASO 8: RASTREADOR (TRACKER) ================= -->
+            <div id="tracker-step-8" class="tracker-view">
                 <div class="tracker-board">
                     
                     <!-- Top Score -->
@@ -507,7 +529,10 @@
                             <span class="tb-round-val"><span id="tb-cur-round">1</span> <span>de 5</span></span>
                         </div>
                         <button class="tb-round-btn" onclick="changeRound(1)"><i class="fas fa-chevron-right"></i></button>
-                        <button class="tb-settings-btn" onclick="openSettingsModal()"><i class="fas fa-cog"></i></button>
+                        <div style="display:flex; gap:10px;">
+                            <button class="tb-settings-btn" onclick="if(tkState.mapLayout) openLightbox(document.getElementById('layout-image').src); else alert('Mapa no seleccionado');"><i class="fas fa-map"></i></button>
+                            <button class="tb-settings-btn" onclick="openSettingsModal()"><i class="fas fa-cog"></i></button>
+                        </div>
                     </div>
 
                     <!-- Player Columns Grid -->
@@ -626,7 +651,7 @@
 
         </div>
 
-        <!-- NAVEGACIÓN INFERIOR (Oculto en paso 7) -->
+        <!-- NAVEGACIÓN INFERIOR (Oculto en paso 8) -->
         <div class="tracker-footer" id="setup-footer">
             <button class="tk-btn-nav" id="tk-back-btn" onclick="goBack()">CANCELAR</button>
             <button class="tk-btn-nav tk-btn-next" id="tk-next-btn" onclick="nextTrackerStep()" disabled>SIGUIENTE <i class="fas fa-arrow-right"></i></button>
@@ -697,6 +722,12 @@
         </div>
     </div>
 
+    <!-- MODAL PARA ZOOM DE MAPA -->
+    <div id="image-lightbox" class="modal-overlay" onclick="if(event.target===this) closeLightbox()">
+        <button class="modal-close" style="top: 20px; right: 20px; width: 45px; height: 45px; font-size: 1.5rem;" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+        <img id="lightbox-img" src="" style="max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
 
@@ -708,6 +739,34 @@
         
         const UI_STYLES = { "Take and Hold": { bg: "bg-take", icon: "fa-chess-rook" }, "Purge the Foe": { bg: "bg-purge", icon: "fa-khanda" }, "Disruption": { bg: "bg-disruption", icon: "fa-bomb" }, "Reconnaissance": { bg: "bg-recon", icon: "fa-eye" }, "Priority Assets": { bg: "bg-priority", icon: "fa-location-arrow" } };
         
+        const EXACT_FILENAMES = {
+            "Take and Hold_Take and Hold": ["tvt1.png", "tvt2.png", "tvt3.png"],
+            "Take and Hold_Purge the Foe": ["tvp1.png", "tvp2.png", "tvp3.png"],
+            "Purge the Foe_Take and Hold": ["tvp1.png", "tvp2.png", "tvp3.png"],
+            "Take and Hold_Disruption": ["tvd1.png", "tvd2.png", "tvd3.png"],
+            "Disruption_Take and Hold": ["tvd1.png", "tvd2.png", "tvd3.png"],
+            "Take and Hold_Reconnaissance": ["tvr1.png", "tvr2.png", "tvr3.png"],
+            "Reconnaissance_Take and Hold": ["tvr1.png", "tvr2.png", "tvr3.png"],
+            "Take and Hold_Priority Assets": ["tvpa1.png", "tvpa2.png", "tvpa3.png"],
+            "Priority Assets_Take and Hold": ["tvpa1.png", "tvpa2.png", "tvpa3.png"],
+            "Purge the Foe_Purge the Foe": ["pvp1.png", "pvp2.png", "pvp3.png"],
+            "Purge the Foe_Disruption": ["pvd1.png", "pvd2.png", "pvd3.png"],
+            "Disruption_Purge the Foe": ["pvd1.png", "pvd2.png", "pvd3.png"],
+            "Purge the Foe_Reconnaissance": ["pvr1.png", "pvr2.png", "pvr3.png"],
+            "Reconnaissance_Purge the Foe": ["pvr1.png", "pvr2.png", "pvr3.png"],
+            "Purge the Foe_Priority Assets": ["pvpa1.png", "pvpa2.png", "pvpa3.png"],
+            "Priority Assets_Purge the Foe": ["pvpa1.png", "pvpa2.png", "pvpa3.png"],
+            "Disruption_Disruption": ["dvd1.png", "dvd2.png", "dvd3.png"],
+            "Disruption_Reconnaissance": ["dvr1.png", "dvr2.png", "dvr3.png"],
+            "Reconnaissance_Disruption": ["dvr1.png", "dvr2.png", "dvr3.png"],
+            "Disruption_Priority Assets": ["dvpa1.png", "dvpa2.png", "dvpa3.png"],
+            "Priority Assets_Disruption": ["dvpa1.png", "dvpa2.png", "dvpa3.png"],
+            "Reconnaissance_Reconnaissance": ["rvr1.png", "rvr2.png", "rvr3.png"],
+            "Reconnaissance_Priority Assets": ["rvpa1.png", "rvpa2.png", "rvpa3.png"],
+            "Priority Assets_Reconnaissance": ["rvpa1.png", "rvpa2.png", "rvpa3.png"],
+            "Priority Assets_Priority Assets": ["pavpa1.png", "pavpa2.png", "pavpa3.png"]
+        };
+
         /* MISIONES SECUNDARIAS (Se mantienen locales) */
         const SECONDARY_MISSIONS = {
             "A Grievous Blow": {
@@ -821,7 +880,7 @@
 
         /* ESTADO DEL TRACKER */
         let tkState = {
-            step: 1, maxSteps: 7, round: 1,
+            step: 1, maxSteps: 8, round: 1, mapLayout: 0,
             p1: { id: '', name: 'JUGADOR 1', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
             p2: { id: '', name: 'JUGADOR 2', cp: 0, faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
             rollOffWinner: 0, firstTurn: 0
@@ -840,14 +899,12 @@
             try {
                 const sb = supabase.createClient(window._sbUrl, window._sbAnon);
 
-                // 1. Cargar Jugadores
                 const jOptions = await loadPlayers(sb);
                 const p1Select = document.getElementById('tk-p1-id');
                 const p2Select = document.getElementById('tk-p2-id');
                 p1Select.innerHTML = jOptions;
                 p2Select.innerHTML = jOptions;
 
-                // 2. Cargar Destacamentos y Facciones
                 const { data: dData, error: dErr } = await sb.from('destacamentos').select('*');
                 if (dErr) throw dErr;
                 
@@ -864,7 +921,6 @@
                 f1Select.innerHTML = fOptions;
                 f2Select.innerHTML = fOptions;
 
-                // 3. Cargar Misiones y reconstruir MISSION_MATRIX
                 const { data: mData } = await sb.from('misiones').select('*');
                 const { data: rData } = await sb.from('misiones_reglas').select('*');
                 const { data: aData } = await sb.from('misiones_acciones').select('*');
@@ -895,7 +951,6 @@
                     }
                 });
 
-                // Ocultar pantalla de carga
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('main-tracker-app').style.display = 'flex';
 
@@ -908,7 +963,6 @@
         async function initTracker() {
             await loadSupabaseData(); 
 
-            // FIX: Si Supabase falló y la matriz de misiones está vacía, detenemos la ejecución para evitar que la app colapse.
             if (Object.keys(MISSION_MATRIX).length === 0) return;
 
             const savedState = localStorage.getItem('herejaibas_tkPartida');
@@ -933,6 +987,11 @@
                     setupForceDispositionButtons(); 
                 }
                 if (tkState.step >= 4) {
+                    const m1 = MISSION_MATRIX[`${tkState.p1.forceDisposition}_${tkState.p2.forceDisposition}`];
+                    document.getElementById('ms-combined-title').textContent = m1 ? m1.name : "EN CONSTRUCCIÓN";
+                    if(tkState.mapLayout) selectLayout(tkState.mapLayout);
+                }
+                if (tkState.step >= 5) {
                     document.getElementById('label-p1-role').textContent = tkState.p1.name || "JUGADOR 1";
                     document.getElementById('label-p2-role').textContent = tkState.p2.name || "JUGADOR 2";
                     if (tkState.p1.role) {
@@ -944,7 +1003,7 @@
                         document.getElementById('btn-p2-def').classList.toggle('selected', tkState.p2.role === 'defender');
                     }
                 }
-                if (tkState.step >= 5) {
+                if (tkState.step >= 6) {
                     document.getElementById('label-p1-sec').textContent = tkState.p1.name || "JUGADOR 1";
                     document.getElementById('label-p2-sec').textContent = tkState.p2.name || "JUGADOR 2";
                     if (tkState.p1.secType) {
@@ -956,7 +1015,7 @@
                         document.getElementById('btn-p2-fix').classList.toggle('selected', tkState.p2.secType === 'fixed');
                     }
                 }
-                if (tkState.step >= 6) {
+                if (tkState.step >= 7) {
                     document.getElementById('btn-roll-p1').textContent = tkState.p1.name || "JUGADOR 1";
                     document.getElementById('btn-roll-p2').textContent = tkState.p2.name || "JUGADOR 2";
                     document.getElementById('btn-first-p1').textContent = tkState.p1.name || "JUGADOR 1";
@@ -974,7 +1033,7 @@
                     }
                 }
 
-                if (tkState.step === 7) {
+                if (tkState.step === 8) {
                     document.getElementById('setup-header').style.display = 'none';
                     document.getElementById('setup-footer').style.display = 'none';
                     renderTrackerBoard();
@@ -996,18 +1055,15 @@
                 const p1Select = document.getElementById('tk-p1-id');
                 const p2Select = document.getElementById('tk-p2-id');
                 
-                // Guardar selecciones actuales
                 const currentP1 = p1Select.value;
                 const currentP2 = p2Select.value;
 
                 p1Select.innerHTML = jOptions;
                 p2Select.innerHTML = jOptions;
 
-                // Restaurar
                 p1Select.value = currentP1;
                 p2Select.value = currentP2;
 
-                // Efecto visual rápido
                 p1Select.style.borderColor = "#27ae60";
                 p2Select.style.borderColor = "#27ae60";
                 setTimeout(() => {
@@ -1024,10 +1080,10 @@
             const btn = document.getElementById(`tk-p${playerNum}-br`);
             if (playerNum === 1) { tkState.p1.battleReady = !tkState.p1.battleReady; if(btn) btn.classList.toggle('active', tkState.p1.battleReady); } 
             else { tkState.p2.battleReady = !tkState.p2.battleReady; if(btn) btn.classList.toggle('active', tkState.p2.battleReady); }
-            if(tkState.step === 7) renderTrackerBoard();
+            if(tkState.step === 8) renderTrackerBoard();
         };
 
-        /* ---------------- FUNCIONES DE PASOS 1-6 ---------------- */
+        /* ---------------- FUNCIONES DE PASOS 1-7 ---------------- */
         function renderDetachments(playerNum) {
             const player = playerNum === 1 ? tkState.p1 : tkState.p2;
             const faction = player.faction;
@@ -1119,6 +1175,39 @@
             document.getElementById('ms-p2-title').textContent = m2 ? m2.name : "EN CONSTRUCCIÓN";
         }
 
+        window.selectLayout = function(num) {
+            tkState.mapLayout = num;
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                btn.style.background = '#112'; btn.style.color = '#aaa'; btn.style.borderColor = '#3a3f4b';
+            });
+            const activeBtn = document.getElementById(`btn-layout-${num}`);
+            activeBtn.style.background = '#f5a623'; activeBtn.style.color = '#000'; activeBtn.style.borderColor = '#f5a623';
+
+            const comboKey = `${tkState.p1.forceDisposition}_${tkState.p2.forceDisposition}`;
+            const fileList = EXACT_FILENAMES[comboKey];
+            
+            if (fileList) {
+                const imgEl = document.getElementById('layout-image');
+                const placeholder = document.getElementById('layout-placeholder');
+                const hint = document.getElementById('zoom-hint');
+                
+                imgEl.src = `https://ffckrczhkmcpgabdbsqi.supabase.co/storage/v1/object/public/mapas/${fileList[num - 1]}`;
+                imgEl.style.display = 'block';
+                hint.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+            checkNextButtonState();
+        };
+
+        window.openLightbox = function(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('image-lightbox').classList.add('open');
+        };
+
+        window.closeLightbox = function() {
+            document.getElementById('image-lightbox').classList.remove('open');
+        };
+
         window.setRole = function(pNum, role) {
             if (role === 'attacker') { tkState.p1.role = pNum === 1 ? 'attacker' : 'defender'; tkState.p2.role = pNum === 1 ? 'defender' : 'attacker'; } 
             else { tkState.p1.role = pNum === 1 ? 'defender' : 'attacker'; tkState.p2.role = pNum === 1 ? 'attacker' : 'defender'; }
@@ -1155,11 +1244,12 @@
             checkNextButtonState();
         }
 
-        /* ---------------- LOGICA DEL RASTREADOR (PASO 7) ---------------- */
+        /* ---------------- LOGICA DEL RASTREADOR (PASO 8) ---------------- */
         
         function initTrackerBoard() {
-            tkState.p1.deck = [...FULL_DECK].sort(() => Math.random() - 0.5);
-            tkState.p2.deck = [...FULL_DECK].sort(() => Math.random() - 0.5);
+            tkState.p1.deck = FULL_DECK.filter(m => SECONDARY_MISSIONS[m].types.includes(tkState.p1.secType.toUpperCase())).sort(() => Math.random() - 0.5);
+            tkState.p2.deck = FULL_DECK.filter(m => SECONDARY_MISSIONS[m].types.includes(tkState.p2.secType.toUpperCase())).sort(() => Math.random() - 0.5);
+            
             tkState.p1.activeSecs = []; tkState.p1.discardedSecs = [];
             tkState.p2.activeSecs = []; tkState.p2.discardedSecs = [];
             
@@ -1200,11 +1290,6 @@
             document.getElementById('tb-col-name-p1').textContent = tkState.p1.name;
             document.getElementById('tb-name-p2').textContent = tkState.p2.name;
             document.getElementById('tb-col-name-p2').textContent = tkState.p2.name;  
-
-            const m1 = MISSION_MATRIX[`${tkState.p1.forceDisposition}_${tkState.p2.forceDisposition}`];
-            const m2 = MISSION_MATRIX[`${tkState.p2.forceDisposition}_${tkState.p1.forceDisposition}`];
-            document.getElementById('tb-p1-prim-name').textContent = m1 ? m1.name : "MISIÓN";
-            document.getElementById('tb-p2-prim-name').textContent = m2 ? m2.name : "MISIÓN";
 
             const p1Total = tkState.p1.vpPrimary + tkState.p1.vpSecondary + (tkState.p1.battleReady ? 10 : 0);
             const p2Total = tkState.p2.vpPrimary + tkState.p2.vpSecondary + (tkState.p2.battleReady ? 10 : 0);
@@ -1433,9 +1518,21 @@
         window.drawSecondary = function(pNum) {
             const pState = pNum === 1 ? tkState.p1 : tkState.p2;
             if(pState.deck.length > 0) {
-                const drawn = pState.deck.pop();
-                pState.activeSecs.push({ name: drawn, drawnRound: tkState.round });
-                renderTrackerBoard();
+                let drawnIndex = pState.deck.length - 1;
+                
+                // Evitar misiones restringidas en la ronda 1
+                if (tkState.round === 1) {
+                    const restrictedR1 = ["Behind Enemy Lines", "Defend Stronghold", "Forward Position"];
+                    while (drawnIndex >= 0 && restrictedR1.includes(pState.deck[drawnIndex])) {
+                        drawnIndex--;
+                    }
+                }
+                
+                if (drawnIndex >= 0) {
+                    const drawn = pState.deck.splice(drawnIndex, 1)[0];
+                    pState.activeSecs.push({ name: drawn, drawnRound: tkState.round });
+                    renderTrackerBoard();
+                }
             }
         }
 
@@ -1501,7 +1598,13 @@
             const style = UI_STYLES["Priority Assets"]; 
             let rulesHTML = '';
             let introHTML = '';
-            if (missionData.intro) { introHTML = `<div style="background:#fff; border:1px solid #112; padding:15px; font-size:0.9rem; line-height:1.4; color:#222; margin-bottom: 16px;">${missionData.intro}</div>`; }
+            
+            // Ocultar texto de "CUANDO SE ROBA" en las misiones fijas
+            if (missionData.intro) { 
+                if (!(secType && secType.toUpperCase() === 'FIXED' && missionData.intro.includes('CUANDO SE ROBA'))) {
+                    introHTML = `<div style="background:#fff; border:1px solid #112; padding:15px; font-size:0.9rem; line-height:1.4; color:#222; margin-bottom: 16px;">${missionData.intro}</div>`; 
+                }
+            }
 
             missionData.rules.forEach(r => {
                 if(secType && r.typeLabel !== secType.toUpperCase()) return; 
@@ -1678,7 +1781,7 @@
         }
         window.goToSetupFromBoard = function() {
             if(confirm('¿Volver a la configuración? La ronda actual y la puntuación se mantendrán guardadas mientras no canceles la partida.')) {
-                closeSettingsModal(); tkState.step = 6;
+                closeSettingsModal(); tkState.step = 7;
                 document.getElementById('setup-header').style.display = 'block';
                 document.getElementById('setup-footer').style.display = 'flex';
                 updateView();
@@ -1691,13 +1794,12 @@
         }
         function resetTrackerState() {
             tkState = {
-                step: 1, maxSteps: 7, round: 1,
+                step: 1, maxSteps: 8, round: 1, mapLayout: 0,
                 p1: { id:'', name: 'JUGADOR 1', faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
                 p2: { id:'', name: 'JUGADOR 2', faction: '', detachments: [], forceDisposition: '', role: '', secType: '', battleReady: false, vpPrimary: 0, vpSecondary: 0, deck: [], activeSecs: [], discardedSecs: [] },
                 rollOffWinner: 0, firstTurn: 0
             };
             
-            // Limpiar inputs iniciales
             document.getElementById('tk-p1-id').value = '';
             document.getElementById('tk-p2-id').value = '';
             document.getElementById('tk-p1-faction').value = '';
@@ -1705,11 +1807,14 @@
             document.getElementById('tk-p1-br').classList.remove('active');
             document.getElementById('tk-p2-br').classList.remove('active');
             
-            // FIX: Limpiar el HTML residual de los pasos intermedios
             document.getElementById('p1-detachment-list').innerHTML = '';
             document.getElementById('p2-detachment-list').innerHTML = '';
             document.querySelectorAll('.fd-btn').forEach(btn => btn.classList.remove('selected', 'available'));
             document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('layout-image').style.display = 'none';
+            document.getElementById('zoom-hint').style.display = 'none';
+            document.getElementById('layout-placeholder').style.display = 'block';
             document.getElementById('first-turn-container').style.display = 'none';
 
             document.getElementById('setup-header').style.display = 'block';
@@ -1727,17 +1832,18 @@
                 const id1 = document.getElementById('tk-p1-id').value; const id2 = document.getElementById('tk-p2-id').value;
                 const f1 = document.getElementById('tk-p1-faction').value; const f2 = document.getElementById('tk-p2-faction').value; 
                 if (!id1 || !id2 || !f1 || !f2) disable = true; 
-                if (id1 === id2 && id1 !== '') { disable = true; } // Evita jugar contra sí mismo
+                if (id1 === id2 && id1 !== '') disable = true; 
             } 
             else if (tkState.step === 2) { if (tkState.p1.detachments.length === 0 || tkState.p2.detachments.length === 0) disable = true; }
             else if (tkState.step === 3) { if (!tkState.p1.forceDisposition || !tkState.p2.forceDisposition) disable = true; }
-            else if (tkState.step === 4) { if (!tkState.p1.role || !tkState.p2.role) disable = true; }
-            else if (tkState.step === 5) { if (!tkState.p1.secType || !tkState.p2.secType) disable = true; }
-            else if (tkState.step === 6) {
+            else if (tkState.step === 4) { if (!tkState.mapLayout) disable = true; }
+            else if (tkState.step === 5) { if (!tkState.p1.role || !tkState.p2.role) disable = true; }
+            else if (tkState.step === 6) { if (!tkState.p1.secType || !tkState.p2.secType) disable = true; }
+            else if (tkState.step === 7) {
                 if (!tkState.rollOffWinner || !tkState.firstTurn) disable = true;
                 btn.innerHTML = disable ? 'INICIAR PARTIDA <i class="fas fa-play"></i>' : 'INICIAR PARTIDA <i class="fas fa-play"></i>';
             }
-            if(tkState.step < 6) btn.innerHTML = 'SIGUIENTE <i class="fas fa-arrow-right"></i>';
+            if(tkState.step < 7) btn.innerHTML = 'SIGUIENTE <i class="fas fa-arrow-right"></i>';
             btn.disabled = disable;
         }
 
@@ -1749,12 +1855,12 @@
         window.goBack = function() {
             if (tkState.step === 1) {
                 if (confirm('¿Salir del rastreador y volver al inicio?')) {
-                    localStorage.removeItem('herejaibas_tkPartida'); // Limpiar memoria al salir
+                    localStorage.removeItem('herejaibas_tkPartida'); 
                     window.location.href = 'index.html';
                 }
-            } else if (tkState.step === 7) {
+            } else if (tkState.step === 8) {
                 if(confirm('¿Seguro que quieres volver a la configuración? Se perderá el progreso de la partida.')) {
-                    tkState.step = 6;
+                    tkState.step = 7;
                     document.getElementById('setup-header').style.display = 'block'; 
                     document.getElementById('setup-footer').style.display = 'flex'; 
                     updateView();
@@ -1767,7 +1873,6 @@
 
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                // En lugar de recargar infinitamente, solo redibujamos la vista actual
                 const savedState = localStorage.getItem('herejaibas_tkPartida');
                 if (savedState) {
                     tkState = JSON.parse(savedState);
@@ -1795,17 +1900,35 @@
             else if (tkState.step === 2) { if (tkState.p1.detachments.length === 0 || tkState.p2.detachments.length === 0) return; setupForceDispositionButtons(); }
             else if (tkState.step === 3) {
                 if (!tkState.p1.forceDisposition || !tkState.p2.forceDisposition) return;
-                document.getElementById('label-p1-role').textContent = tkState.p1.name; document.getElementById('label-p2-role').textContent = tkState.p2.name;
-                document.getElementById('label-p1-sec').textContent = tkState.p1.name; document.getElementById('label-p2-sec').textContent = tkState.p2.name;
-                document.getElementById('btn-roll-p1').textContent = tkState.p1.name; document.getElementById('btn-roll-p2').textContent = tkState.p2.name;
-                document.getElementById('btn-first-p1').textContent = tkState.p1.name; document.getElementById('btn-first-p2').textContent = tkState.p2.name;
+                const m1 = MISSION_MATRIX[`${tkState.p1.forceDisposition}_${tkState.p2.forceDisposition}`];
+                document.getElementById('ms-combined-title').textContent = m1 ? m1.name : "EN CONSTRUCCIÓN";
+                if(tkState.mapLayout) selectLayout(tkState.mapLayout);
             }
-            else if (tkState.step === 4) { if (!tkState.p1.role || !tkState.p2.role) return; }
-            else if (tkState.step === 5) { if (!tkState.p1.secType || !tkState.p2.secType) return; }
-            else if (tkState.step === 6) { 
+            else if (tkState.step === 4) {
+                if (!tkState.mapLayout) return;
+                document.getElementById('label-p1-role').textContent = tkState.p1.name; 
+                document.getElementById('label-p2-role').textContent = tkState.p2.name;
+            }
+            else if (tkState.step === 5) {
+                if (!tkState.p1.role || !tkState.p2.role) return;
+                document.getElementById('label-p1-sec').textContent = tkState.p1.name; 
+                document.getElementById('label-p2-sec').textContent = tkState.p2.name;
+            }
+            else if (tkState.step === 6) {
+                if (!tkState.p1.secType || !tkState.p2.secType) return;
+                document.getElementById('btn-roll-p1').textContent = tkState.p1.name; 
+                document.getElementById('btn-roll-p2').textContent = tkState.p2.name;
+                document.getElementById('btn-first-p1').textContent = tkState.p1.name; 
+                document.getElementById('btn-first-p2').textContent = tkState.p2.name;
+            }
+            else if (tkState.step === 7) { 
                 if (!tkState.rollOffWinner || !tkState.firstTurn) return; 
-                document.getElementById('setup-header').style.display = 'none'; document.getElementById('setup-footer').style.display = 'none'; initTrackerBoard();
+                document.getElementById('setup-header').style.display = 'none'; 
+                document.getElementById('setup-footer').style.display = 'none'; 
+                initTrackerBoard();
+                return; 
             }
+            
             if (tkState.step < tkState.maxSteps) { tkState.step++; updateView(); }
         };
 
@@ -1814,27 +1937,29 @@
             const nextView = document.getElementById(`tracker-step-${tkState.step}`);
             if (nextView) nextView.classList.add('active');
 
-            if(tkState.step < 7) {
+            if(tkState.step < 8) {
                 const steps = document.querySelectorAll('.t-step');
                 steps.forEach((el, index) => {
                     if (index + 1 === tkState.step) { el.classList.add('active'); el.classList.remove('completed'); el.innerHTML = tkState.step; } 
                     else if (index + 1 < tkState.step) { el.classList.remove('active'); el.classList.add('completed'); el.innerHTML = '<i class="fas fa-check"></i>'; } 
                     else { el.classList.remove('active'); el.classList.remove('completed'); el.innerHTML = index + 1; }
                 });
-                document.getElementById('header-subtitle').textContent = `PASO ${Math.min(tkState.step, 6)} DE 6`;
+                document.getElementById('header-subtitle').textContent = `PASO ${Math.min(tkState.step, 7)} DE 7`;
+                
                 if (tkState.step === 1) { document.getElementById('header-title').textContent = "JUGADORES"; document.getElementById('header-desc').textContent = "Selecciona a los jugadores y elige su facción."; document.getElementById('tk-back-btn').textContent = "CANCELAR"; } 
                 else if (tkState.step === 2) { document.getElementById('header-title').textContent = "DESTACAMENTOS"; document.getElementById('header-desc').textContent = "Elige tus destacamentos. Puedes combinar varios hasta un máximo de 3 Puntos (DP)."; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
                 else if (tkState.step === 3) { document.getElementById('header-title').textContent = "DISPOSICIÓN DE FUERZAS"; document.getElementById('header-desc').textContent = "Selecciona la disposición de fuerzas principal de tu ejército (según tus destacamentos)."; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
-                else if (tkState.step === 4) { document.getElementById('header-title').textContent = "ATACANTE / DEFENSOR"; document.getElementById('header-desc').textContent = "AMBOS JUGADORES TIRAN 1D6 · GANA EL MAYOR · REPETIR EMPATES"; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
-                else if (tkState.step === 5) { document.getElementById('header-title').textContent = "TIPO DE MISIÓN SECUNDARIA"; document.getElementById('header-desc').textContent = "Elige si jugarás con objetivos tácticos (dinámicos) o fijos."; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
-                else if (tkState.step === 6) { document.getElementById('header-title').textContent = "PRIMER TURNO"; document.getElementById('header-desc').textContent = "AMBOS JUGADORES TIRAN 1D6 · GANA EL MAYOR · REPETIR EMPATES"; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
+                else if (tkState.step === 4) { document.getElementById('header-title').textContent = "MAPA DE TERRENO"; document.getElementById('header-desc').textContent = "Elige la distribución de escenografía para la misión seleccionada."; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
+                else if (tkState.step === 5) { document.getElementById('header-title').textContent = "ATACANTE / DEFENSOR"; document.getElementById('header-desc').textContent = "AMBOS JUGADORES TIRAN 1D6 · GANA EL MAYOR · REPETIR EMPATES"; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
+                else if (tkState.step === 6) { document.getElementById('header-title').textContent = "TIPO DE MISIÓN SECUNDARIA"; document.getElementById('header-desc').textContent = "Elige si jugarás con objetivos tácticos (dinámicos) o fijos."; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
+                else if (tkState.step === 7) { document.getElementById('header-title').textContent = "PRIMER TURNO"; document.getElementById('header-desc').textContent = "AMBOS JUGADORES TIRAN 1D6 · GANA EL MAYOR · REPETIR EMPATES"; document.getElementById('tk-back-btn').textContent = "ATRÁS"; }
                 checkNextButtonState();
             }
             localStorage.setItem('herejaibas_tkPartida', JSON.stringify(tkState));
         }
 
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') { closeMission(); closeActionModal(); closeSettingsModal(); closeVpModal(); }
+            if (e.key === 'Escape') { closeMission(); closeActionModal(); closeSettingsModal(); closeVpModal(); closeLightbox(); }
         });
 
         document.addEventListener('DOMContentLoaded', initTracker);
@@ -1884,13 +2009,10 @@
                 btn.disabled = false;
             }
         };
+
         window.addEventListener('pageshow', function(event) {
-            // Detecta si la página viene de la caché del historial (Botón atrás/adelante)
-            const vieneDelHistorial = event.persisted || 
-                                     (window.performance && window.performance.navigation.type === 2);
-            
+            const vieneDelHistorial = event.persisted || (window.performance && window.performance.navigation.type === 2);
             if (vieneDelHistorial) {
-                // Forzamos una recarga limpia para reconectar Supabase y reactivar los botones
                 window.location.reload();
             }
         });

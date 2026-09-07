@@ -147,8 +147,8 @@
     const sb = supabase.createClient(window._sbUrl, window._sbAnon);
 
     async function cargarDatos() {
+        // 1. Cargar Ranking de forma independiente
         try {
-            // 1. Cargar Ranking (Vista en Supabase)
             const { data: ranking, error: errRank } = await sb
                 .from('ranking_jugadores')
                 .select('*')
@@ -160,7 +160,6 @@
             const podioContainer = document.getElementById('podio-container');
             const rankingBody = document.getElementById('ranking-body');
 
-            // Renderizar Top 3
             const podioClases = [
                 { class: 'oro', icon: 'fa-trophy' }, 
                 { class: 'plata', icon: 'fa-medal' }, 
@@ -179,7 +178,6 @@
                 `;
             });
 
-            // Renderizar Resto de la Tabla
             ranking.slice(3).forEach((jugador, index) => {
                 rankingBody.innerHTML += `
                     <tr>
@@ -193,7 +191,13 @@
                 `;
             });
 
-            // 2. Cargar Historial (Tabla partidas conectada con jugadores)
+        } catch (error) {
+            console.error('Error cargando el ranking:', error);
+            document.getElementById('podio-container').innerHTML = `<p style="color:#e24a4a;">Error al cargar el top 3.</p>`;
+        }
+
+        // 2. Cargar Historial de forma independiente
+        try {
             const { data: partidas, error: errPartidas } = await sb
                 .from('partidas')
                 .select(`
@@ -208,15 +212,19 @@
             if (errPartidas) throw errPartidas;
 
             const logContainer = document.getElementById('log-container');
+            logContainer.innerHTML = ''; 
 
             partidas.forEach(p => {
+                const j1Nombre = p.j1?.nombre || 'Jugador Desconocido';
+                const j2Nombre = p.j2?.nombre || 'Jugador Desconocido';
+                
                 const isEmpate = p.ganador_id === null;
                 const badge = isEmpate 
                     ? `<span class="empate-badge">EMPATE</span>` 
-                    : `<span class="ganador-badge">VICTORIA DE ${p.ganador.nombre}</span>`;
+                    : `<span class="ganador-badge">VICTORIA DE ${p.ganador?.nombre || 'JUGADOR'}</span>`;
 
-                const p1WinClass = (!isEmpate && p.ganador_id === p.j1.id) ? 'win' : 'lose';
-                const p2WinClass = (!isEmpate && p.ganador_id === p.j2.id) ? 'win' : 'lose';
+                const p1WinClass = (!isEmpate && p.ganador_id === p.j1?.id) ? 'win' : 'lose';
+                const p2WinClass = (!isEmpate && p.ganador_id === p.j2?.id) ? 'win' : 'lose';
 
                 const fechaStr = new Date(p.fecha).toLocaleDateString('es-ES', { 
                     year: 'numeric', month: 'short', day: 'numeric' 
@@ -230,13 +238,13 @@
                         </div>
                         <div class="partida-body">
                             <div class="player-col">
-                                <span class="p-name">${p.j1.nombre}</span>
+                                <span class="p-name">${j1Nombre}</span>
                                 <span class="p-army">${p.ejercito1 || 'Sin facción'}</span>
                                 <span class="p-score ${p1WinClass}">${p.puntuacion_j1}</span>
                             </div>
                             <div class="vs-divider">VS</div>
                             <div class="player-col right">
-                                <span class="p-name">${p.j2.nombre}</span>
+                                <span class="p-name">${j2Nombre}</span>
                                 <span class="p-army">${p.ejercito2 || 'Sin facción'}</span>
                                 <span class="p-score ${p2WinClass}">${p.puntuacion_j2}</span>
                             </div>
@@ -246,8 +254,8 @@
             });
 
         } catch (error) {
-            console.error('Error cargando los datos:', error);
-            document.getElementById('podio-container').innerHTML = `<p style="color:#e24a4a;">Error al cargar la base de datos.</p>`;
+            console.error('Error cargando el historial:', error);
+            document.getElementById('log-container').innerHTML = `<p style="color:#e24a4a;">Error al cargar el historial de partidas.</p>`;
         }
     }
 
